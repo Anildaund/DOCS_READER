@@ -1,0 +1,21 @@
+# === Core Framework ===
+streamlit
+python-dotenv
+
+# === LangChain & Ecosystem ===
+langchain
+langchain-community
+langchain-core
+
+# === Vector Store & Embeddings ===
+chromadb
+sentence-transformers
+
+# === PDF Parsing ===
+pymupdf
+
+# === Mistral SDK ===
+mistralai
+
+# === Other useful tools ===
+tqdm
