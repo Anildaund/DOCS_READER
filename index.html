@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Conversational PDF ChatBot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f0f2f5;
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    textarea, input[type="file"], input[type="text"] {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .chatbox {
+      margin-top: 2rem;
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 5px;
+      background: #fafafa;
+    }
+    .message {
+      margin: 1rem 0;
+    }
+    .user {
+      font-weight: bold;
+      color: #333;
+    }
+    .bot {
+      margin-left: 1rem;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📄 Conversational PDF ChatBot</h1>
+
+    <h3>1. Upload a PDF</h3>
+    <input type="file" id="pdfFile" accept="application/pdf" />
+    <button onclick="uploadPDF()">Upload & Summarize</button>
+
+    <p id="summary"></p>
+
+    <h3>2. Ask a Question</h3>
+    <input type="text" id="userQuestion" placeholder="Type your question..." />
+    <button onclick="askQuestion()">Ask</button>
+
+    <div class="chatbox" id="chatbox"></div>
+  </div>
+
+  <script>
+    let summaryShown = false;
+
+    async function uploadPDF() {
+      const fileInput = document.getElementById('pdfFile');
+      const summaryBox = document.getElementById('summary');
+      const chatbox = document.getElementById('chatbox');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert('Please upload a PDF file.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      summaryBox.innerText = "⏳ Uploading and summarizing...";
+      chatbox.innerHTML = "";
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/upload_pdf/", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        summaryBox.innerHTML = `<strong>📋 Summary:</strong><br>${data.summary}`;
+        summaryShown = true;
+      } catch (err) {
+        summaryBox.innerText = "❌ Error uploading PDF.";
+        console.error(err);
+      }
+    }
+
+    async function askQuestion() {
+      if (!summaryShown) {
+        alert("Please upload a PDF first.");
+        return;
+      }
+
+      const questionInput = document.getElementById("userQuestion");
+      const chatbox = document.getElementById("chatbox");
+      const question = questionInput.value.trim();
+
+      if (!question) return;
+
+      chatbox.innerHTML += `
+        <div class="message">
+          <div class="user">🧑 You:</div>
+          <div class="bot">${question}</div>
+        </div>
+      `;
+
+      questionInput.value = "";
+
+      const formData = new FormData();
+      formData.append("question", question);
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/ask/", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+
+        chatbox.innerHTML += `
+          <div class="message">
+            <div class="user">🤖 Bot:</div>
+            <div class="bot">${data.answer}</div>
+          </div>
+        `;
+        chatbox.scrollTop = chatbox.scrollHeight;
+      } catch (err) {
+        chatbox.innerHTML += `<div class="bot">❌ Error getting answer.</div>`;
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
