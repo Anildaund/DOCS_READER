@@ -6,9 +6,11 @@ from rag_chain import create_rag_chain
 import model
 from dotenv import load_dotenv
 load_dotenv()
-
+from fastapi.responses import FileResponse
 
 app = FastAPI()
+
+
 
 # Optional: allow frontend access
 app.add_middleware(
@@ -17,6 +19,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/")
+async def serve_html():
+    return FileResponse("index.html", media_type="text/html")
 
 SUGGESTED_QUESTIONS = [
     "What is the main topic of this document?",
