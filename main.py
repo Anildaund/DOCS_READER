@@ -18,6 +18,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+SUGGESTED_QUESTIONS = [
+    "What is the main topic of this document?",
+    "Can you summarize the key points?",
+    "What are the important definitions or concepts?",
+    "List out any steps, procedures, or instructions mentioned.",
+    "What are the conclusions or final findings?",
+    "Are there any statistics or data insights?",
+    "What questions can I expect from this PDF in a test?",
+    "Can you generate 5 MCQs from this document?",
+    "What is the tone or writing style of the document?",
+    "List all the chapters or sections from the PDF.",
+]
+
 @app.post("/upload_pdf/")
 async def upload_pdf(file: UploadFile = File(...)):
     model.chunks = process_pdf(await file.read())
