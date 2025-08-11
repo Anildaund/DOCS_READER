@@ -3,76 +3,199 @@
 <head>
   <meta charset="UTF-8" />
   <title>Conversational PDF ChatBot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-      background: #f0f2f5;
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #f0f4f8;
+      color: #333;
     }
-    h1 {
+
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 1rem 2rem;
       text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
     .container {
-      max-width: 800px;
-      margin: auto;
+      max-width: 1000px;
+      margin: 2rem auto;
       background: white;
       padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
     }
-    textarea, input[type="file"], input[type="text"] {
+
+    h3 {
+      margin-top: 2rem;
+      font-weight: 600;
+      color: #007bff;
+    }
+
+    input[type="file"],
+    input[type="text"] {
       width: 100%;
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 5px;
+      padding: 14px;
+      margin-top: 0.5rem;
+      font-size: 1rem;
       border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #fefefe;
     }
+
+    input:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    }
+
     button {
-      margin-top: 10px;
-      padding: 10px 20px;
+      padding: 12px 25px;
+      margin-top: 1rem;
+      border: none;
+      border-radius: 8px;
       background: #007bff;
       color: white;
-      border: none;
-      border-radius: 5px;
+      font-size: 1rem;
       cursor: pointer;
+      transition: all 0.3s ease;
     }
+
+    button:hover {
+      background: #0056b3;
+      transform: scale(1.02);
+    }
+
+    #summary {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f1faff;
+      border-left: 4px solid #007bff;
+      border-radius: 5px;
+    }
+
     .chatbox {
       margin-top: 2rem;
       max-height: 400px;
       overflow-y: auto;
-      border: 1px solid #ddd;
-      padding: 10px;
-      border-radius: 5px;
+      padding: 1rem;
       background: #fafafa;
+      border-radius: 10px;
+      border: 1px solid #ddd;
     }
+
     .message {
-      margin: 1rem 0;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1rem;
     }
+
+    .user, .bot {
+      padding: 10px 15px;
+      border-radius: 20px;
+      max-width: 75%;
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
     .user {
-      font-weight: bold;
+      align-self: flex-end;
+      background: #007bff;
+      color: white;
+    }
+
+    .bot {
+      align-self: flex-start;
+      background: #e0e0e0;
       color: #333;
     }
-    .bot {
-      margin-left: 1rem;
-      color: #444;
+
+    ul#suggested-questions-list {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    ul#suggested-questions-list li {
+      margin: 5px 10px 5px 0;
+      padding: 8px 12px;
+      background: #e7f0ff;
+      color: #007bff;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    ul#suggested-questions-list li:hover {
+      background: #007bff;
+      color: white;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 1rem;
+        padding: 1.5rem;
+      }
+
+      header h1 {
+        font-size: 1.5rem;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .user, .bot {
+        max-width: 100%;
+      }
+
+      .chatbox {
+        max-height: 300px;
+      }
     }
   </style>
 </head>
 <body>
+
+  <header>
+    <h1>📄 Smart PDF ChatBot</h1>
+  </header>
+
   <div class="container">
-    <h1>📄 Conversational PDF ChatBot</h1>
-
-    <h3>1. Upload a PDF</h3>
+    <h3>1️⃣ Upload a PDF</h3>
     <input type="file" id="pdfFile" accept="application/pdf" />
-    <button onclick="uploadPDF()">Upload & Summarize</button>
+    <button onclick="uploadPDF()">📤 Upload & Summarize</button>
 
-    <p id="summary"></p>
+    <div id="summary"></div>
 
-    <h3>2. Ask a Question</h3>
+    <h3>2️⃣ Ask a Question</h3>
     <input type="text" id="userQuestion" placeholder="Type your question..." />
-    <button onclick="askQuestion()">Ask</button>
+    <button onclick="askQuestion()">💬 Ask</button>
 
     <div class="chatbox" id="chatbox"></div>
+
+    <div>
+      <h3>💡 Suggested Questions</h3>
+      <ul id="suggested-questions-list"></ul>
+    </div>
   </div>
 
   <script>
@@ -92,7 +215,7 @@
       const formData = new FormData();
       formData.append("file", file);
 
-      summaryBox.innerText = "⏳ Uploading and summarizing...";
+      summaryBox.innerHTML = "⏳ Uploading and summarizing...";
       chatbox.innerHTML = "";
 
       try {
@@ -124,8 +247,7 @@
 
       chatbox.innerHTML += `
         <div class="message">
-          <div class="user">🧑 You:</div>
-          <div class="bot">${question}</div>
+          <div class="user">🧑 ${question}</div>
         </div>
       `;
 
@@ -144,16 +266,37 @@
 
         chatbox.innerHTML += `
           <div class="message">
-            <div class="user">🤖 Bot:</div>
-            <div class="bot">${data.answer}</div>
+            <div class="bot">🤖 ${data.answer}</div>
           </div>
         `;
         chatbox.scrollTop = chatbox.scrollHeight;
       } catch (err) {
-        chatbox.innerHTML += `<div class="bot">❌ Error getting answer.</div>`;
+        chatbox.innerHTML += `<div class="message"><div class="bot">❌ Error getting answer.</div></div>`;
         console.error(err);
       }
     }
+
+    async function loadSuggestedQuestions() {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/suggested_questions/");
+        const data = await response.json();
+        const list = document.getElementById("suggested-questions-list");
+        list.innerHTML = "";
+        data.suggested_questions.forEach(q => {
+          const li = document.createElement("li");
+          li.textContent = q;
+          li.onclick = function () {
+            document.getElementById("userQuestion").value = q;
+          };
+          list.appendChild(li);
+        });
+      } catch (err) {
+        console.error("Failed to load suggestions:", err);
+      }
+    }
+
+    window.onload = loadSuggestedQuestions;
   </script>
+
 </body>
 </html>

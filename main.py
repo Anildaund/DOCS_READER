@@ -1,3 +1,4 @@
+
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from mistral_llm import MistralLLM
@@ -64,3 +65,7 @@ async def ask_question(question: str = Form(...)):
         "answer": result["answer"],
         "sources": [doc.page_content for doc in result["source_documents"]],
     }
+
+@app.get("/suggested_questions/")
+async def get_suggested_questions():
+    return {"suggested_questions": SUGGESTED_QUESTIONS}
